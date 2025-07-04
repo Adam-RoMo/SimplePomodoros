@@ -23,13 +23,22 @@ export default function App() {
 
   const panResponder = React.useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState: PanResponderGestureState) =>
-        Math.abs(gestureState.dx) > 20,
+      onMoveShouldSetPanResponder: (_, gestureState: PanResponderGestureState) => {
+        console.log('Gesture dx:', gestureState.dx);
+        return Math.abs(gestureState.dx) > 20
+      },
+      onPanResponderGrant: () => {
+        console.log('Pan start');
+      },
       onPanResponderRelease: (_, gestureState: PanResponderGestureState) => {
-        if (gestureState.dx > 50 && currentStep > 0) {
-          setCurrentStep(currentStep - 1);
-        } else if (gestureState.dx < -50 && currentStep < sequence.length - 1) {
-          setCurrentStep(currentStep + 1);
+        console.log('Pan end dx:', gestureState.dx, "current step:", currentStep);
+        console.log('sequence lenght:', sequence.length);
+        if (gestureState.dx > 50) {
+          console.log('Swiped left');
+          setCurrentStep(prev => (prev > 0 ? prev - 1 : sequence.length - 1));
+        } else if (gestureState.dx < -50) {
+          console.log('Swiped right');
+          setCurrentStep((prev) => (prev < sequence.length - 1 ? prev + 1 : 0));
         }
       }
     })
@@ -60,7 +69,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: {flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'yellow'},
   timer: { fontSize: 60, marginBottom: 20},
   title: {
         color: 'Blue',
