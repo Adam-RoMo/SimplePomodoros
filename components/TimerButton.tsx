@@ -1,5 +1,5 @@
 import react, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
 import { Audio } from 'expo-av';
 
 type Props = {
@@ -56,27 +56,41 @@ const TimerButton = (Props) => {
 
     return (
         <TouchableOpacity
-        activeOpacity={0.7}
-        style={((Props.status === 'rest') ? (styles.circleRest) : (styles.circleWork))} onPress={pauseTimer}>
-            <Text style={styles.title}>
-                {Props.title}
-            </Text>
-            <Text style={styles.text}>
-                {isPaused ? 'Paused' : formatTime(TimerSec)}
-            </Text>
+            style={styles.wrapper}
+            activeOpacity={0.7}
+            onPress={pauseTimer}>
+            <Image
+                source={require('../assets/images/Pomodoro.png')}
+                style={styles.circleWork}
+            />
+            <View style={styles.overlay}>
+                <Text style={styles.text}>
+                    {isPaused ? 'Paused' : formatTime(TimerSec)}
+                </Text>
+            </View>
+
         </ TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    circleWork: {
+    wrapper: {
         width: 250,
         height: 250,
-        borderRadius: 125,
-        backgroundColor: 'red',
+    },
+    overlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    circleWork: {
+        width: '100%',
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 8,
+        resizeMode: 'contain',
+        position: 'absolute'
     },
     circleRest: {
         width: 250,
@@ -87,15 +101,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 50,
     },
-    title: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 36,
-    },
     text: {
         color: 'white',
-        fontWeight: 'bold',
         fontSize: 32,
+        paddingTop: 20,
     }
 });
 
