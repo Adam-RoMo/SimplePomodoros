@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, PanResponder, GestureResponderEvent, PanResponderGestureState} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
+  Animated,
+
+} from 'react-native';
 import React from 'react';
 import TimerButton from './components/TimerButton';
 
@@ -10,16 +19,38 @@ type TimerStep = {
 
 export default function App() {
   const sequence: TimerStep[] = [
-    { durationSec: 15, status: 'work', title: "work 1"},
-    { durationSec: 15, status: 'rest', title: "rest"},
-    { durationSec: 15, status: 'work', title: "work 2"},
-    { durationSec: 15, status: 'rest', title: "rest"},
-    { durationSec: 15, status: 'work', title: "work 3"},
-    { durationSec: 15, status: 'rest', title: "rest"},
-    { durationSec: 15, status: 'work', title: "work 4"},
-    { durationSec: 15, status: 'rest', title: "long rest"},
+    { durationSec: 15, status: 'work', title: "work 1" },
+    { durationSec: 15, status: 'rest', title: "rest" },
+    { durationSec: 15, status: 'work', title: "work 2" },
+    { durationSec: 15, status: 'rest', title: "rest" },
+    { durationSec: 15, status: 'work', title: "work 3" },
+    { durationSec: 15, status: 'rest', title: "rest" },
+    { durationSec: 15, status: 'work', title: "work 4" },
+    { durationSec: 15, status: 'rest', title: "long rest" },
   ];
   const [currentStep, setCurrentStep] = React.useState(0);
+  const animation = React.useRef(new Animated.Value(0)).current;
+
+  const getColorFromStatus = (status: 'work' | 'rest') =>
+    status === 'work' ? '#FCFFED' : '#D7F4FF';
+
+  React.useEffect(() => {
+    Animated.timing(animation, {
+      toValue: currentStep,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  }, [currentStep]);
+
+  const prevStep = currentStep > 0 ? currentStep - 1 : currentStep;
+  const prevColor = getColorFromStatus(sequence[prevStep].status);
+  const currentColor = getColorFromStatus(sequence[currentStep].status);
+
+    const backgroundColor = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [prevColor, currentColor],
+  });
+
 
   const panResponder = React.useRef(
     PanResponder.create({
@@ -45,7 +76,7 @@ export default function App() {
   ).current;
 
   const handleFinish = () => {
-    setCurrentStep(() => {      
+    setCurrentStep(() => {
       if (currentStep === sequence.length - 1) {
         return 0;
       }
@@ -54,7 +85,9 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
+    <Animated.View
+    style={[styles.container, { backgroundColor }]}
+    {...panResponder.panHandlers}>
       <Text style={styles.title}>
         {sequence[currentStep].title}
       </Text>
@@ -64,17 +97,21 @@ export default function App() {
         status={sequence[currentStep].status}
         title={sequence[currentStep].title}
         onFinish={handleFinish} />
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'yellow'},
-  timer: { fontSize: 60, marginBottom: 20},
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  timer: { fontSize: 60, marginBottom: 20 },
   title: {
-        color: 'Blue',
-        fontWeight: 'bold',
-        fontSize: 36,
-        paddingBottom: 20,
-    },
+    color: 'Blue',
+    fontWeight: 'bold',
+    fontSize: 36,
+    paddingBottom: 20,
+  },
 });
